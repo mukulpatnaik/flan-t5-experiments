@@ -83,7 +83,10 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate Flan-T5 model on SAT questions')
     parser.add_argument('model_size', choices=['small', 'base', 'large', 'xl', 'xxl', 'eightbitmodel'], help='Size of T5 model')
     parser.add_argument('-b', '--benchmark', type=str, default='sat', help='the benchmark to use')
+    parser.add_argument('-n', '--num_samples', type=int, default=100, help='the number of samples to use')
     args = parser.parse_args()
+
+    n = args.num_samples
 
     # Load model and tokenizer
     model, tokenizer = get_model_and_tokenizer(args.model_size)
@@ -93,7 +96,7 @@ def main():
         from datasets import load_dataset
         dataset = load_dataset("hendrycks_test", 'global_facts')
         data = pd.DataFrame(dataset['test'])
-        results, errors = run_mmlu(dataset, 'base', 100)
+        results, errors = run_mmlu(dataset, 'base', n)
     
     elif (args.benchmark == 'sat'):
 
@@ -108,7 +111,7 @@ def main():
         data = pd.concat([train, test, validation])
 
         # Randomly sample 100 rows from data and reset index
-        data = data.sample(n=1, random_state=42).reset_index(drop=True)
+        data = data.sample(n=n, random_state=42).reset_index(drop=True)
 
         # Evaluate
         results = evaluate(model, tokenizer, data, args.model_size)
