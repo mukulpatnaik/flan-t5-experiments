@@ -4,12 +4,12 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalG
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
-        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}")
-        tokenizer = AutoTokenizer.from_pretrained(f"google/flan-t5-{model_size}")
+        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}", device_map="auto")
+        tokenizer = AutoTokenizer.from_pretrained(f"google/flan-t5-{model_size}").input_ids.to("cuda")
     elif model_size == "eightbitmodel":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
         model.to("mps")
-        tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-xxl").input_ids.to("mps")
+        tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-xxl").input_ids.to("cuda")
     else:
         raise ValueError(f"Invalid model : {model_size}")
 
