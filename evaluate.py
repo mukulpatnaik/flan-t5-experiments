@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import torch
 import os
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
@@ -17,7 +18,7 @@ def get_model_and_tokenizer(model_size):
         model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}", device_map="auto")
         tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
-        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
         # model.to("mps")
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     else:
