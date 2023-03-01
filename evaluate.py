@@ -37,7 +37,7 @@ def evaluate(model, tokenizer, df, name):
         answers.append(tokenizer.decode(outputs[0]))
     
     for i in range(len(answers)):
-        x = answers[i].replace('<pad>', '').replace('</s>', '')
+        x = answers[i].replace('<pad>', '').replace('</s>', '').replace('.', '').replace('?', '')
         a = x.strip()
         # append the question, answer, and correct answer to the results list as a dictionary
         results.append({'question': df['text'][i], 'answer': a, 'correct_answer': df['answer'][i]})
@@ -69,14 +69,17 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
         answers.append(z)
         keys = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
         # append the question, answer, and correct answer to the results list as a dictionary
-        results.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': list(keys.keys())[list(keys.values()).index(dataset['answer'][i])], 'choices': dataset['choices'][i]})
+        try:
+            if keys[str(z)] == dataset['answer'][i]:
+                score += 1
+            else:
+                errors.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': list(keys.keys())[list(keys.values()).index(dataset['answer'][i])], 'choices': dataset['choices'][i]})
+        except KeyError:
+            errors.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': None, 'choices': dataset['choices'][i]})
+            continue
+        
         # print(keys[str(z)])
-        if keys[str(z)] == dataset['answer'][i]:
-            score += 1
-        elif str(z) not in keys.keys():
-            print("Error: ", z)
-        else:
-            errors.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': list(keys.keys())[list(keys.values()).index(dataset['answer'][i])], 'choices': dataset['choices'][i]})  
+        results.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': list(keys.keys())[list(keys.values()).index(dataset['answer'][i])], 'choices': dataset['choices'][i]})
     
     print("Score: ", score/len(answers))
     return results, errors
