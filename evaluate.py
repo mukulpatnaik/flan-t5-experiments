@@ -59,8 +59,8 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
         prompt = dataset['question'][i] + "\n" + "A: " + dataset['choices'][i][0] + ", B: " + dataset['choices'][i][1] + ", C: " + dataset['choices'][i][2] + ", D: " + dataset['choices'][i][3]
         # print(prompt)
 
-        inputs = tokenizer(prompt, return_tensors="pt")
-        outputs = model.generate(**inputs, max_new_tokens=10)
+        inputs = tokenizer(prompt, return_tensors="pt").input_ids.to("cuda")
+        outputs = model.generate(inputs, max_new_tokens=10)
         a = tokenizer.decode(outputs[0])
     
         x = a.replace('<pad>', '').replace('</s>', '')
