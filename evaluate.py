@@ -1,7 +1,7 @@
 import argparse
 import pandas as pd
 import os
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
 # # set the environment variable HUGGINGFACE_HUB_CACHE to the path of the cache directory
 # os.environ["HUGGINGFACE_HUB_CACHE"] = "."
@@ -15,11 +15,11 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalG
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
         model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}", device_map="auto")
-        tokenizer = AutoTokenizer.from_pretrained(f"google/flan-t5-{model_size}").input_ids.to("cuda")
+        tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
-        model.to("mps")
-        tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-xxl").input_ids.to("cuda")
+        # model.to("mps")
+        tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     else:
         raise ValueError(f"Invalid model : {model_size}")
 
@@ -31,8 +31,8 @@ def evaluate(model, tokenizer, df, name):
     score = 0
     results = []
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt")
-        outputs = model.generate(**inputs, max_new_tokens=10)
+        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
+        outputs = model.generate(inputs, max_new_tokens=10)
         answers.append(tokenizer.decode(outputs[0]))
     
     for i in range(len(answers)):
