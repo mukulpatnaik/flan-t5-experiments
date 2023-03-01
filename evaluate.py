@@ -63,7 +63,7 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
         outputs = model.generate(inputs, max_new_tokens=10)
         a = tokenizer.decode(outputs[0])
     
-        x = a.replace('<pad>', '').replace('</s>', '')
+        x = a.replace('<pad>', '').replace('</s>', '').replace('.', '').replace('?', '')
         z = x.strip()
 
         answers.append(z)
