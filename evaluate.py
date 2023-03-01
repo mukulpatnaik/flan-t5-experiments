@@ -81,7 +81,7 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
     print("Score: ", score/len(answers))
     return results, errors
 
-def run_mmlu(dataset, model, tokenizer, n=100):
+def run_mmlu(dataset, model, tokenizer, n=100, model_size="base"):
     # model_size = str(input("Enter model size: "))
     df = pd.DataFrame(dataset['auxiliary_train'])
     g = df.sample(n=n, random_state=42).reset_index(drop=True)
@@ -106,7 +106,7 @@ def main():
         from datasets import load_dataset
         dataset = load_dataset("hendrycks_test", 'global_facts')
         data = pd.DataFrame(dataset['test'])
-        results, errors = run_mmlu(dataset, model, tokenizer, n=n)
+        results, errors = run_mmlu(dataset, model, tokenizer, n=n, model_size=args.model_size)
         errors_df = pd.DataFrame(errors)
         errors_df.to_csv(f"results/errors_{args.model_size}_{n}.csv")
     
