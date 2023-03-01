@@ -1,1 +1,5 @@
 /results
+/data/auxiliary_train
+/data/dev
+# data/test
+/data/val
