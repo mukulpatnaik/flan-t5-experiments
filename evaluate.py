@@ -122,11 +122,11 @@ def main():
     elif (args.benchmark == 'sat'):
 
         # Read train data from parquet file in data/train-00000-of-00001-be16864a4346f8b0.parquet
-        train = pd.read_parquet('sat/train-00000-of-00001-be16864a4346f8b0.parquet')
+        train = pd.read_parquet('data/sat/train-00000-of-00001-be16864a4346f8b0.parquet')
         # Read test data from parquet file in data/test-00000-of-00001-8026e2bb5cef708b.parquet
-        test = pd.read_parquet('sat/test-00000-of-00001-8026e2bb5cef708b.parquet')
+        test = pd.read_parquet('data/sat/test-00000-of-00001-8026e2bb5cef708b.parquet')
         # Read validation data from parquet file in data/validation-00000-of-00001-6242383510343be0.parquet
-        validation = pd.read_parquet('sat/validation-00000-of-00001-6242383510343be0.parquet')
+        validation = pd.read_parquet('data/sat/validation-00000-of-00001-6242383510343be0.parquet')
 
         # Combine train, test, and validation data
         data = pd.concat([train, test, validation])
