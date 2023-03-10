@@ -4,14 +4,14 @@ import torch
 import os
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
-# # set the environment variable HUGGINGFACE_HUB_CACHE to the path of the cache directory
-# os.environ["HUGGINGFACE_HUB_CACHE"] = "."
-# # set the environment variable TRANSFORMERS_CACHE to the path of the cache directory
-# os.environ["TRANSFORMERS_CACHE"] = "."
-# # set the environment variable HF_HOME. to the path of the cache directory
-# os.environ["HF_HOME"] = "."
-# # set the environment variable XDG_CACHE_HOME+ /huggingface to the path of the cache directory
-# os.environ["XDG_CACHE_HOME"] = "."
+# set the environment variable HUGGINGFACE_HUB_CACHE to the path of the cache directory
+os.environ["HUGGINGFACE_HUB_CACHE"] = "."
+# set the environment variable TRANSFORMERS_CACHE to the path of the cache directory
+os.environ["TRANSFORMERS_CACHE"] = "."
+# set the environment variable HF_HOME. to the path of the cache directory
+os.environ["HF_HOME"] = "."
+# set the environment variable XDG_CACHE_HOME+ /huggingface to the path of the cache directory
+os.environ["XDG_CACHE_HOME"] = "."
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
