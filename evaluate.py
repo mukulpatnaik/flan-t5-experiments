@@ -15,7 +15,8 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalG
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
-        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}", device_map="auto")
+        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}")
+        # model.to("mps")
         tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
@@ -32,8 +33,12 @@ def evaluate(model, tokenizer, df, name):
     score = 0
     results = []
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
-        outputs = model.generate(inputs, max_new_tokens=10)
+        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cpu")
+        # convert inputs to int32
+        # print(inputs.dtype)
+        # inputs = inputs.to(torch.int32)
+        # print(inputs.dtype)
+        outputs = model.generate(inputs, max_new_tokens=1)
         answers.append(tokenizer.decode(outputs[0]))
     
     for i in range(len(answers)):
@@ -45,6 +50,7 @@ def evaluate(model, tokenizer, df, name):
             score += 1
     
     print("Score: ", score/len(answers))
+    # print(results)
     return results
 
 def evaluate_mmlu(dataset, model, tokenizer, name):
@@ -116,11 +122,11 @@ def main():
     elif (args.benchmark == 'sat'):
 
         # Read train data from parquet file in data/train-00000-of-00001-be16864a4346f8b0.parquet
-        train = pd.read_parquet('data/sat/train-00000-of-00001-be16864a4346f8b0.parquet')
+        train = pd.read_parquet('sat/train-00000-of-00001-be16864a4346f8b0.parquet')
         # Read test data from parquet file in data/test-00000-of-00001-8026e2bb5cef708b.parquet
-        test = pd.read_parquet('data/sat/test-00000-of-00001-8026e2bb5cef708b.parquet')
+        test = pd.read_parquet('sat/test-00000-of-00001-8026e2bb5cef708b.parquet')
         # Read validation data from parquet file in data/validation-00000-of-00001-6242383510343be0.parquet
-        validation = pd.read_parquet('data/sat/validation-00000-of-00001-6242383510343be0.parquet')
+        validation = pd.read_parquet('sat/validation-00000-of-00001-6242383510343be0.parquet')
 
         # Combine train, test, and validation data
         data = pd.concat([train, test, validation])
