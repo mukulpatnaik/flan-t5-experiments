@@ -19,6 +19,9 @@ def get_model_and_tokenizer(model_size):
         # model.to("mps")
         tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
+        tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
+    elif model_size == "float16":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     else:
