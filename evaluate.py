@@ -15,7 +15,7 @@ os.environ["XDG_CACHE_HOME"] = "."
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
-        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}")
+        model = T5ForConditionalGeneration.from_pretrained(f"google/flan-t5-{model_size}", device_map="auto")
         # model.to("mps")
         tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
