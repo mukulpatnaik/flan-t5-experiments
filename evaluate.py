@@ -138,8 +138,8 @@ def main():
         results = evaluate(model, tokenizer, data, args.model_size)
 
     # Save results to CSV file
-    results_df = pd.DataFrame(results)
-    results_df.to_csv(f'results/{args.model_size}-{args.benchmark}-results.csv', index=False)
+    # results_df = pd.DataFrame(results)
+    # results_df.to_csv(f'results/{args.model_size}-{args.benchmark}-results.csv', index=False)
 
 if __name__ == '__main__':
     main()
