@@ -12,6 +12,8 @@ os.environ["TRANSFORMERS_CACHE"] = "."
 os.environ["HF_HOME"] = "."
 # set the environment variable XDG_CACHE_HOME+ /huggingface to the path of the cache directory
 os.environ["XDG_CACHE_HOME"] = "."
+# set the environment variable HF_DATASETS_CACHE to the path of the cache directory
+os.environ["HF_DATASETS_CACHE"] = "."
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
