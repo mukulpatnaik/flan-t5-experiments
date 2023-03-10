@@ -13,6 +13,12 @@ os.environ["HF_HOME"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 os.environ["XDG_CACHE_HOME"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 # set the environment variable HF_DATASETS_CACHE to the path of the cache directory
 os.environ["HF_DATASETS_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
+# set the environment variable HF_MODEL_CACHE to the path of the cache directory
+os.environ["HF_MODEL_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
+# set the environment variable HF_CONFIG_CACHE to the path of the cache directory
+os.environ["HF_CONFIG_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
+# set the environment variable HF_TF_CACHE to the path of the cache directory
+os.environ["HF_TF_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
