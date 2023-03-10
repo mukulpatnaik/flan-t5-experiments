@@ -20,7 +20,6 @@ def get_model_and_tokenizer(model_size):
         tokenizer = T5Tokenizer.from_pretrained(f"google/flan-t5-{model_size}")
     elif model_size == "eightbitmodel":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
-        # model.to("mps")
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     else:
         raise ValueError(f"Invalid model : {model_size}")
@@ -33,7 +32,7 @@ def evaluate(model, tokenizer, df, name):
     score = 0
     results = []
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cpu")
+        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
         # convert inputs to int32
         # print(inputs.dtype)
         # inputs = inputs.to(torch.int32)
