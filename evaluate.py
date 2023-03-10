@@ -2,7 +2,6 @@ import argparse
 import pandas as pd
 import torch
 import os
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
 # set the environment variable HUGGINGFACE_HUB_CACHE to the path of the cache directory
 os.environ["HUGGINGFACE_HUB_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
@@ -14,6 +13,8 @@ os.environ["HF_HOME"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 os.environ["XDG_CACHE_HOME"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 # set the environment variable HF_DATASETS_CACHE to the path of the cache directory
 os.environ["HF_DATASETS_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
+
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
