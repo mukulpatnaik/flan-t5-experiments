@@ -104,7 +104,7 @@ def run_mmlu(dataset, model, tokenizer, n=100, model_size="base"):
 def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Evaluate Flan-T5 model on SAT questions')
-    parser.add_argument('model_size', choices=['small', 'base', 'large', 'xl', 'xxl', 'eightbitmodel'], help='Size of T5 model')
+    parser.add_argument('model_size', choices=['small', 'base', 'large', 'xl', 'xxl', 'eightbitmodel', 'float16'], help='Size of T5 model')
     parser.add_argument('-b', '--benchmark', type=str, default='sat', help='the benchmark to use')
     parser.add_argument('-n', '--num_samples', type=int, default=100, help='the number of samples to use')
     args = parser.parse_args()
