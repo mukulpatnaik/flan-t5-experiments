@@ -52,7 +52,7 @@ def evaluate(model, tokenizer, df, name):
     score = 0
     results = []
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt", padding=True, truncation=True).to(model.device)
+        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
         outputs = model.generate(inputs, max_new_tokens=1)
         answers.append(tokenizer.decode(outputs[0]))
     
