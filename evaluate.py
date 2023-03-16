@@ -21,6 +21,7 @@ os.environ["HF_CONFIG_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 os.environ["HF_TF_CACHE"] = "/projects/mupa3718/flan-t5-experiments/.cache"
 
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
+from accelerate import Accelerator
 
 def get_model_and_tokenizer(model_size):
     if model_size in ["small", "large", "base", "xl", "xxl"]:
@@ -33,6 +34,14 @@ def get_model_and_tokenizer(model_size):
     elif model_size == "float16":
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
+    elif model_size == "ul2":
+        # Load model and tokenizer on CPU
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-ul2", torch_dtype=torch.bfloat16)
+        tokenizer = AutoTokenizer.from_pretrained("google/flan-ul2")
+
+        # Initialize accelerator to distribute model across all available GPUs
+        accelerator = Accelerator()
+        model, tokenizer = accelerator.prepare(model, tokenizer)
     else:
         raise ValueError(f"Invalid model : {model_size}")
 
@@ -44,11 +53,7 @@ def evaluate(model, tokenizer, df, name):
     score = 0
     results = []
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
-        # convert inputs to int32
-        # print(inputs.dtype)
-        # inputs = inputs.to(torch.int32)
-        # print(inputs.dtype)
+        inputs = tokenizer(i, return_tensors="pt", padding=True, truncation=True).to(model.device)
         outputs = model.generate(inputs, max_new_tokens=1)
         answers.append(tokenizer.decode(outputs[0]))
     
