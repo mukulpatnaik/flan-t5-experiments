@@ -32,11 +32,10 @@ def get_model_and_tokenizer(model_size):
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     elif model_size == "float16":
-        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16) 
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     elif model_size == "ul2":
-        # Load model and tokenizer on CPU
-        model = T5ForConditionalGeneration.from_pretrained("google/flan-ul2", torch_dtype=torch.bfloat16)
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-ul2")
         tokenizer = AutoTokenizer.from_pretrained("google/flan-ul2")
 
         # Initialize accelerator to distribute model across all available GPUs
@@ -116,7 +115,7 @@ def run_mmlu(dataset, model, tokenizer, n=100, model_size="base"):
 def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Evaluate Flan-T5 model on SAT questions')
-    parser.add_argument('model_size', choices=['small', 'base', 'large', 'xl', 'xxl', 'eightbitmodel', 'float16'], help='Size of T5 model')
+    parser.add_argument('model_size', choices=['small', 'base', 'large', 'xl', 'xxl', 'eightbitmodel', 'float16', "ul2"], help='Size of T5 model')
     parser.add_argument('-b', '--benchmark', type=str, default='sat', help='the benchmark to use')
     parser.add_argument('-n', '--num_samples', type=int, default=100, help='the number of samples to use')
     args = parser.parse_args()
