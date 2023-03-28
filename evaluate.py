@@ -32,15 +32,12 @@ def get_model_and_tokenizer(model_size):
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", load_in_8bit=True)
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     elif model_size == "float16":
-        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16) 
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xxl", device_map="auto", torch_dtype=torch.float16)
         tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-xxl")
     elif model_size == "ul2":
-        model = T5ForConditionalGeneration.from_pretrained("google/flan-ul2")
+        model = T5ForConditionalGeneration.from_pretrained("google/flan-ul2", torch_dtype=torch.bfloat16, device_map="auto")
         tokenizer = AutoTokenizer.from_pretrained("google/flan-ul2")
-
-        # Initialize accelerator to distribute model across all available GPUs
-        accelerator = Accelerator()
-        model, tokenizer = accelerator.prepare(model, tokenizer)
+        model = torch.nn.DataParallel(model).to("cuda")
     else:
         raise ValueError(f"Invalid model : {model_size}")
 
@@ -51,11 +48,15 @@ def evaluate(model, tokenizer, df, name):
     answers = []
     score = 0
     results = []
+    model.eval()
+
     for i in df['text']:
-        inputs = tokenizer(i, return_tensors="pt").input_ids.to("cuda")
-        outputs = model.generate(inputs, max_new_tokens=1)
-        answers.append(tokenizer.decode(outputs[0]))
-    
+        with torch.no_grad():
+            inputs = tokenizer(i, return_tensors="pt").input_ids.to(model.device_ids[0])
+            # Access the original model to use the generate method
+            outputs = model.module.generate(inputs, max_new_tokens=1)
+            results.append(tokenizer.decode(outputs[0]))
+
     for i in range(len(answers)):
         x = answers[i].replace('<pad>', '').replace('</s>', '').replace('.', '').replace('?', '')
         a = x.strip()
@@ -63,7 +64,7 @@ def evaluate(model, tokenizer, df, name):
         results.append({'question': df['text'][i], 'answer': a, 'correct_answer': df['answer'][i]})
         if a == df['answer'][i]:
             score += 1
-    
+
     print("Score: ", score/len(answers))
     # print(results)
     return results
@@ -83,7 +84,7 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
         inputs = tokenizer(prompt, return_tensors="pt").input_ids.to("cuda")
         outputs = model.generate(inputs, max_new_tokens=10)
         a = tokenizer.decode(outputs[0])
-    
+
         x = a.replace('<pad>', '').replace('</s>', '').replace('.', '').replace('?', '')
         z = x.strip()
 
@@ -98,10 +99,10 @@ def evaluate_mmlu(dataset, model, tokenizer, name):
         except KeyError:
             errors.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': None, 'choices': dataset['choices'][i]})
             continue
-        
+
         # print(keys[str(z)])
         results.append({'question': dataset['question'][i], 'answer': z, 'correct_answer': list(keys.keys())[list(keys.values()).index(dataset['answer'][i])], 'choices': dataset['choices'][i]})
-    
+
     print("Score: ", score/len(answers))
     return results, errors
 
@@ -133,7 +134,7 @@ def main():
         results, errors = run_mmlu(dataset, model, tokenizer, n=n, model_size=args.model_size)
         errors_df = pd.DataFrame(errors)
         errors_df.to_csv(f"results/errors_{args.model_size}_{n}.csv")
-    
+
     elif (args.benchmark == 'sat'):
 
         # Read train data from parquet file in data/train-00000-of-00001-be16864a4346f8b0.parquet
@@ -153,8 +154,8 @@ def main():
         results = evaluate(model, tokenizer, data, args.model_size)
 
     # Save results to CSV file
-    # results_df = pd.DataFrame(results)
-    # results_df.to_csv(f'results/{args.model_size}-{args.benchmark}-results.csv', index=False)
+    results_df = pd.DataFrame(results)
+    results_df.to_csv(f'results/{args.model_size}-{args.benchmark}-results.csv', index=False)
 
 if __name__ == '__main__':
     main()
